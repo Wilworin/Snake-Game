@@ -4,15 +4,18 @@ using System.Text;
 
 namespace Snake_Game
 {
-    class Food : GameObject, IRenderable
+    /// <summary>
+    /// Holds all information about the Food.
+    /// </summary>
+    public class Food : GameObject, IRenderable
     {
         public char Look { get; } = '*';
 
         public Food ()
         {
             Random r = new Random();
-            int x = r.Next(2, 80);
-            int y = r.Next(4, 30);
+            int x = r.Next(2, Program.ConsoleWidth-1);
+            int y = r.Next(4, Program.ConsoleHeight-1);
             Pos = new Position(x, y);
         }
 
@@ -23,7 +26,7 @@ namespace Snake_Game
 
         public Food(int x, int y):base (x,y)
         {
-           // base(x, y);
+           
         }
 
         public override void Update ()

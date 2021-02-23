@@ -25,12 +25,12 @@ namespace Snake_Game
             return (x.X != y.X || x.Y != y.Y);
         }
 
-        public override bool Equals(object o)
+        public override bool Equals(object o) // Never used but implemented to get rid on warnings.
         {
             return (X != ((Position)o).X && Y == ((Position)o).Y);
         }
 
-        public override int GetHashCode()
+        public override int GetHashCode() // Never used but implemented to get rid on warnings.
         {
             return base.GetHashCode();
         }
@@ -40,9 +40,6 @@ namespace Snake_Game
 
         public static Position operator -(Position x, Position y)
             => new Position(x.X - y.X, x.Y - y.Y);
-
-//        public static Position operator +(Position x, (int x, int y))
-//    => new Position((x.X + x), (x.Y + y));
 
     }
 
