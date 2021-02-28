@@ -19,7 +19,7 @@ namespace Snake_Game
 
         public GameObject(Position p)
         {
-            Pos = p;
+            Pos = new Position(p.X, p.Y);
         }
 
         public GameObject (int x, int y)

@@ -6,6 +6,7 @@ namespace Snake_Game
     class Program
     {
         public static int frameRate = 5; // Changed it to a non-const so I could change the fps during play.
+        private static bool isRunning = true;
 
         public static int ConsoleWidth { get; set; } = 80;
         public static int ConsoleHeight { get; set; } = 40;
@@ -21,17 +22,16 @@ namespace Snake_Game
         /// </summary>
         static void Loop()
         {
+            Player player = new Player(ConsoleWidth / 2, ConsoleHeight / 2);
             GameWorld world = new GameWorld(ConsoleWidth, ConsoleHeight);
+            world.SetPlayer(player); // This is mainly used to get access to the tail.
             ConsoleRenderer renderer = new ConsoleRenderer(world);
 
-            Player player = new Player(ConsoleWidth / 2, ConsoleHeight / 2);
-            world.AddToList(player);
 
             // Main loop
-            bool isRunning = true;
             while (isRunning)
             {
-                // Kom ihåg vad klockan var i början
+                // Remember the time from the start of the frame.
                 DateTime before = DateTime.Now;
 
                 // Handle key presses from the user. The supplied method ReadKeyIfExists returns the letters
@@ -55,6 +55,8 @@ namespace Snake_Game
                     case 'L': // Left
                         player.Dir = Direction.Left;
                         break;
+                    default:
+                        break;
                 }
 
                 // Update the world and re-draw the objects on the screen (except the wall).
@@ -70,6 +72,8 @@ namespace Snake_Game
                     Thread.Sleep((int)frameTime);
                 }
             }
+            DisplayGameOver(world.score, world.GameSeconds());
+            Console.ReadKey();
         }
 
         static void Main(string[] args)
@@ -85,32 +89,53 @@ namespace Snake_Game
             ConsoleHelper.SetCurrentFont("Lucida Console", 16);
 
             // Displays start menu and waits for a random key.
-            PrintMenu();
+            DisplayMenu();
             Console.ReadKey();
 
-            DateTime startTime = DateTime.Now;
             Loop();
-            //Console.WriteLine(DateTime.Now - startTime);
         }
 
 
         /// <summary>
         /// Prints out the Snake menu with short instructions.
         /// </summary>
-        static void PrintMenu()
+        static void DisplayMenu()
         {
-            Console.WriteLine("\n\n     WELCOME TO...\n\n");
-            Console.WriteLine("     QQQQQQQ   Q     Q      Q       Q    Q    QQQQQQQQ ");
-            Console.WriteLine("    Q          QQ    Q     Q Q      Q   Q     Q        ");
-            Console.WriteLine("    Q          Q Q   Q    Q   Q     Q  Q      Q        ");
-            Console.WriteLine("    Q          Q Q   Q   Q     Q    Q Q       Q        ");
-            Console.WriteLine("     QQQQQQ    Q  Q  Q   QQQQQQQ    QQ        QQQQQQ   ");
-            Console.WriteLine("           Q   Q   Q Q   Q     Q    Q Q       Q        ");
-            Console.WriteLine("           Q   Q   Q Q   Q     Q    Q  Q      Q        ");
-            Console.WriteLine("           Q   Q    QQ   Q     Q    Q   Q     Q        ");
-            Console.WriteLine("    QQQQQQQ    Q     Q   Q     Q    Q    Q    QQQQQQQQ ");
-            Console.WriteLine("\n\n    Move using the arrow keys. Press Q to Quit.");
-            Console.WriteLine("\n\n\n          Press any key to continue.");
+            Console.WriteLine("\n\n         WELCOME TO...\n\n");
+            Console.WriteLine("             ███████   █     █      █       █    █    ████████ ");
+            Console.WriteLine("            █          ██    █     █ █      █   █     █        ");
+            Console.WriteLine("            █          █ █   █    █   █     █  █      █        ");
+            Console.WriteLine("            █          █ █   █   █     █    █ █       █        ");
+            Console.WriteLine("             ██████    █  █  █   ███████    ██        ██████   ");
+            Console.WriteLine("                   █   █   █ █   █     █    █ █       █        ");
+            Console.WriteLine("                   █   █   █ █   █     █    █  █      █        ");
+            Console.WriteLine("                   █   █    ██   █     █    █   █     █        ");
+            Console.WriteLine("            ███████    █     █   █     █    █    █    ████████ ");
+            Console.WriteLine("\n\n\n\n               Move using the arrow keys. Press Q to Quit.");
+            Console.WriteLine("\n             Food will teleport after 10 seconds if not eaten.");
+            Console.WriteLine("\n\n\n                  KEEP AN EYE ON THE EAT OR DIE TIMER!!!");
+            Console.WriteLine("\n\n\n                       Press any key to continue.");
+        }
+
+
+        /// <summary>
+        /// Displays the Game Over text.
+        /// </summary>
+        /// <param name="score">Players score</param>
+        /// <param name="timer">Elapsed time</param>
+        static void DisplayGameOver(int score, int timer)
+        {
+            // This method is really only designed for 80 chars width so it looks fugly if I change the size to less. 
+            Console.WriteLine("\n\n\n\n\n█   ████       █     █     █  ███████      ██     █     █  ███████  █████    █");
+            Console.WriteLine("█ ██    ██    █ █    ██   ██  █          ██  ██   █     █  █        █    █   █");
+            Console.WriteLine("█ █          █   █   █ █ █ █  █         █      █  █     █  █        █     █  █");
+            Console.WriteLine("█ █         █     █  █  █  █  █         █      █  █     █  █        █    █   █");
+            Console.WriteLine("█ █   ████  ███████  █     █  █████     █      █  █     █  █████    █████    █");
+            Console.WriteLine("█ █      █  █     █  █     █  █         █      █   █   █   █        █   █    █");
+            Console.WriteLine("█ █      █  █     █  █     █  █         █      █   █   █   █        █    █    ");
+            Console.WriteLine("█  ██  ██   █     █  █     █  █          ██  ██     █ █    █        █     █  █");
+            Console.WriteLine("█    ██     █     █  █     █  ███████      ██        █     ███████  █     █  █\n\n\n\n");
+            Console.WriteLine($"█     Your score was: {score} and you played for: {timer} seconds.\n\n\n\n");
         }
 
 
@@ -125,6 +150,15 @@ namespace Snake_Game
             {
                 frameRate = fps;
             }
+        }
+
+
+        /// <summary>
+        /// Changes the isRunning to false, thus causing the main loop to stop.
+        /// </summary>
+        public static void SetGameOver()
+        {
+            isRunning = false;
         }
     }
 }

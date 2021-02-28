@@ -4,6 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+
+// I have done 6 tests. Ofc I could have done more but you did say that "some" were enough since it was about
+// us getting training writing them. :)
 namespace Snake_Game.Tests
 {
     [TestClass()]

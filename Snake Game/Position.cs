@@ -15,6 +15,11 @@ namespace Snake_Game
             Y = y;
         }
 
+        //public Position (Position p)
+        //{
+
+        //}
+
         public static bool operator ==(Position x, Position y)
         {
             return (x.X == y.X && x.Y == y.Y);

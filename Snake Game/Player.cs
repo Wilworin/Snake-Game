@@ -9,12 +9,15 @@ namespace Snake_Game
     /// </summary>
     public class Player : GameObject, IMovable, IRenderable
     {
+        private List<Tail> tail = new List<Tail>();
+
         public char Look { get; } = 'Q';
         public Direction Dir { get; set; } = Direction.None;
 
 
         public Player (int x, int y):base(x,y)
         {
+            //tail.Add(new Tail(Pos));
 
         }
 
@@ -32,40 +35,82 @@ namespace Snake_Game
             const int verticalFrameRate = 10;
             const int horizontalFrameRate = 16;
 
-            // The checks are to ensure that the player can't go outside the wall.
+            if (Dir != Direction.None)
+            {
+                tail.Add(new Tail(Pos.X, Pos.Y));
+                tail.RemoveAt(0);
+            }
+
             switch (Dir)
             {
                 case Direction.Up:
-                    if (Pos.Y > 3)
-                    {
-                        Pos.Y--;
-                        Program.ChangeFrameRate(verticalFrameRate);
-                    }
+                    Pos.Y--;
+                    Program.ChangeFrameRate(verticalFrameRate);
                     break;
                 case Direction.Down:
-                    if (Pos.Y < Program.ConsoleHeight -2)
-                    {
-                        Pos.Y++;
-                        Program.ChangeFrameRate(verticalFrameRate);
-                    }
+                    Pos.Y++;
+                    Program.ChangeFrameRate(verticalFrameRate);
                     break;
                 case Direction.Left:
-                    if (Pos.X > 1)
-                    {
-                        Pos.X--;
-                        Program.ChangeFrameRate(horizontalFrameRate);
-                    }
+                    Pos.X--;
+                    Program.ChangeFrameRate(horizontalFrameRate);
                     break;
                 case Direction.Right:
-                    if (Pos.X < Program.ConsoleWidth -2)
-                    {
-                        Pos.X++;
-                        Program.ChangeFrameRate(horizontalFrameRate);
-                    }
+                    Pos.X++;
+                    Program.ChangeFrameRate(horizontalFrameRate);
                     break;
                 default:
                     break;
             }
+            CheckBorder(); // Checks if the snake has ran into the wall and then calls Game Over.
+            CheckCollideWithTail();
         }
-    }
+
+
+        /// <summary>
+        /// Returns a reference to the tail list so the renderer easily can go through it.
+        /// </summary>
+        /// <returns></returns>
+        public List<Tail> GetTailList ()
+        {
+            return tail;
+        }
+
+
+        /// <summary>
+        /// Adds an extra tail at the players position.
+        /// </summary>
+        public void AddTail()
+        {
+            tail.Add(new Tail(Pos.X, Pos.Y));
+        }
+
+
+        /// <summary>
+        /// Checks if the player ran into the wall and if so, calls Game Over.
+        /// </summary>
+        private void CheckBorder ()
+        {
+            if (Pos.Y <= 2 || Pos.Y >= Program.ConsoleHeight - 1 || Pos.X < 1 || Pos.X >= Program.ConsoleWidth - 1)
+            {
+                Program.SetGameOver();
+            }
+        }
+
+
+        /// <summary>
+        /// Checks if the player has collided with his own tail and if so, calls Game Over.
+        /// </summary>
+        private void CheckCollideWithTail ()
+        {
+            foreach (Tail t in tail)
+            {
+                if (Pos == t.Pos)
+                {
+                    Program.SetGameOver();
+                }
+            }
+        }
+
+   }
 }

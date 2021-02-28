@@ -17,7 +17,10 @@ namespace Snake_Game
         public int width { get; set; }       // Holds the width (in chars) of the screen.
         public int height { get; set; }      // Holds the height (in chars) of the screen.
         public int score { get; set; } = 0;  // Keeps track of the player score.
+        public DateTime gameTime { get; } = DateTime.Now; // Keeps track of how long the game has been running.
+        private DateTime EatOrDieTimer { get; set; } = new DateTime(1900, 1, 1); // Used to keep track since the player last ate.
 
+        public Player player { get; private set; } = null; // Holds the player.
 
         public GameWorld (int w, int h)
         {
@@ -47,7 +50,19 @@ namespace Snake_Game
         
 
         /// <summary>
+        /// Sets the player variable and adds to the gameobjects-list.
+        /// </summary>
+        /// <param name="p"></param>
+        public void SetPlayer (Player p)
+        {
+            player = p;
+            allObjects.Add(player);
+        }
+
+
+        /// <summary>
         /// This will call the Update method in all the GameObjects in the list allObjects.
+        /// Then checks for collisions.
         /// </summary>
         public void Update()
         {
@@ -55,26 +70,95 @@ namespace Snake_Game
             {
                 obj.Update();
             }
+            DetectCollisions();
+            if (GetEatOrDieTimer() < 0)
+            {
+                Program.SetGameOver();
+            }
+        }
 
-            // Collision Detection
+
+        /// <summary>
+        /// Detects collisions between player, tail and food.
+        /// </summary>
+        private void DetectCollisions ()
+        {   // Note that the players collisions with the wall and it's own tail is done inside the Player class.
             for (int j = 0; j < allObjects.Count; j++)
             {
-                if(allObjects[j] is Player)
+                if (allObjects[j] is Player) // If Player, check for collisions with Food.
                 {
-                    for (int i = allObjects.Count -1; i >= 0; i--)
+                    for (int i = allObjects.Count - 1; i >= 0; i--)
                     {
-                        if (allObjects[i] is Food)  // Collision with food detected.
+                        if (allObjects[i] is Food)
                         {
-                            if (allObjects[i].Pos == allObjects[j].Pos)
+                            if (allObjects[i].Pos == allObjects[j].Pos)  // Collision with food detected.
                             {
                                 allObjects.Remove(allObjects[i]);
-                                score++;
-                                AddToList(new Food());
+                                AteFood();
                             }
                         }
                     }
                 }
+                else if (allObjects[j] is Food) // If food, check for collisions in the tail list.
+                {
+                    foreach (Tail t in player.GetTailList())
+                    {
+                        if (allObjects[j].Pos == t.Pos) // If collision with tail.
+                        {
+                            allObjects.Remove(allObjects[j]);
+                            AteFood();
+                        }
+                    }
+                }
             }
+        }
+
+
+        /// <summary>
+        /// Returns the elapsed game time in seconds.
+        /// </summary>
+        /// <returns></returns>
+        public int GameSeconds()
+        {
+            return (int)Math.Floor((DateTime.Now - gameTime).TotalSeconds);
+        }
+
+
+        /// <summary>
+        /// Resets the eat-or-die timer each time the player ate a food.
+        /// </summary>
+        public void ResetEatOrDieTimer()
+        {
+            EatOrDieTimer = DateTime.Now.AddSeconds(15);
+        }
+
+
+        /// <summary>
+        /// Returns the eat-or-die timer rounded to 1 decimal. 
+        /// </summary>
+        /// <returns></returns>
+        public double GetEatOrDieTimer()
+        {
+            if (EatOrDieTimer.Year != 1900)
+            {
+                return Math.Round((EatOrDieTimer - DateTime.Now).TotalSeconds, 1);
+            }
+            else
+            {
+                return 0.0;
+            }
+        }
+
+
+        /// <summary>
+        /// This handles if the player or tail has collided with food.
+        /// </summary>
+        private void AteFood()
+        {
+            player.AddTail();
+            score++;
+            AddToList(new Food());
+            ResetEatOrDieTimer();
         }
     }
 }
